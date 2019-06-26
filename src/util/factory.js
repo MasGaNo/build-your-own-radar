@@ -40,19 +40,31 @@ const plotRadar = function (title, blips, currentRadarName, alternativeRadars) {
     }
     ringMap[ringName] = new Ring(ringName, i)
   })
+  
+  var teams = [];
 
   var quadrants = {}
   _.each(blips, function (blip) {
     if (!quadrants[blip.quadrant]) {
       quadrants[blip.quadrant] = new Quadrant(_.capitalize(blip.quadrant))
     }
-    quadrants[blip.quadrant].add(new Blip(blip.name, ringMap[blip.ring], blip.isNew.toLowerCase() === 'true', blip.topic, blip.description))
+    var blipTeams = blip.teams.split(',').map(function(team) {
+      return team.trim();
+    });
+    quadrants[blip.quadrant].add(new Blip(blip.name, ringMap[blip.ring], blip.isNew.toLowerCase() === 'true', blip.topic, blip.description, blipTeams))
+    teams = teams.concat(blipTeams);
   })
-
+  
+  
   var radar = new Radar()
   _.each(quadrants, function (quadrant) {
     radar.addQuadrant(quadrant)
   })
+  
+  teams = teams.filter(function(team, index) {
+    return index === teams.indexOf(team);
+  }).filter(Boolean);
+  radar.addTeams(teams)
 
   if (alternativeRadars !== undefined || true) {
     alternativeRadars.forEach(function (sheetName) {

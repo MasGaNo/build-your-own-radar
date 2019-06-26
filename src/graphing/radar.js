@@ -12,7 +12,7 @@ const MIN_BLIP_WIDTH = 12
 const ANIMATION_DURATION = 1000
 
 const Radar = function (size, radar) {
-  var svg, radarElement, quadrantButtons, buttonsGroup, header, alternativeDiv
+  var svg, radarElement, quadrantButtons, buttonsGroup, header, alternativeDiv, teamsFilters, selectedFilters
 
   var tip = d3tip().attr('class', 'd3-tip').html(function (text) {
     return text
@@ -31,15 +31,15 @@ const Radar = function (size, radar) {
   var self = {}
   var chance
 
-  function center () {
+  function center() {
     return Math.round(size / 2)
   }
 
-  function toRadian (angleInDegrees) {
+  function toRadian(angleInDegrees) {
     return Math.PI * angleInDegrees / 180
   }
 
-  function plotLines (quadrantGroup, quadrant) {
+  function plotLines(quadrantGroup, quadrant) {
     var startX = size * (1 - (-Math.sin(toRadian(quadrant.startAngle)) + 1) / 2)
     var endX = size * (1 - (-Math.sin(toRadian(quadrant.startAngle - 90)) + 1) / 2)
 
@@ -63,7 +63,7 @@ const Radar = function (size, radar) {
       .attr('stroke-width', 10)
   }
 
-  function plotQuadrant (rings, quadrant) {
+  function plotQuadrant(rings, quadrant) {
     var quadrantGroup = svg.append('g')
       .attr('class', 'quadrant-group quadrant-group-' + quadrant.order)
       .on('mouseover', mouseoverQuadrant.bind({}, quadrant.order))
@@ -86,7 +86,7 @@ const Radar = function (size, radar) {
     return quadrantGroup
   }
 
-  function plotTexts (quadrantGroup, rings, quadrant) {
+  function plotTexts(quadrantGroup, rings, quadrant) {
     rings.forEach(function (ring, i) {
       if (quadrant.order === 'first' || quadrant.order === 'fourth') {
         quadrantGroup.append('text')
@@ -106,37 +106,37 @@ const Radar = function (size, radar) {
     })
   }
 
-  function triangle (blip, x, y, order, group) {
+  function triangle(blip, x, y, order, group) {
     return group.append('path').attr('d', 'M412.201,311.406c0.021,0,0.042,0,0.063,0c0.067,0,0.135,0,0.201,0c4.052,0,6.106-0.051,8.168-0.102c2.053-0.051,4.115-0.102,8.176-0.102h0.103c6.976-0.183,10.227-5.306,6.306-11.53c-3.988-6.121-4.97-5.407-8.598-11.224c-1.631-3.008-3.872-4.577-6.179-4.577c-2.276,0-4.613,1.528-6.48,4.699c-3.578,6.077-3.26,6.014-7.306,11.723C402.598,306.067,405.426,311.406,412.201,311.406')
       .attr('transform', 'scale(' + (blip.width / 34) + ') translate(' + (-404 + x * (34 / blip.width) - 17) + ', ' + (-282 + y * (34 / blip.width) - 17) + ')')
       .attr('class', order)
   }
 
-  function triangleLegend (x, y, group) {
+  function triangleLegend(x, y, group) {
     return group.append('path').attr('d', 'M412.201,311.406c0.021,0,0.042,0,0.063,0c0.067,0,0.135,0,0.201,0c4.052,0,6.106-0.051,8.168-0.102c2.053-0.051,4.115-0.102,8.176-0.102h0.103c6.976-0.183,10.227-5.306,6.306-11.53c-3.988-6.121-4.97-5.407-8.598-11.224c-1.631-3.008-3.872-4.577-6.179-4.577c-2.276,0-4.613,1.528-6.48,4.699c-3.578,6.077-3.26,6.014-7.306,11.723C402.598,306.067,405.426,311.406,412.201,311.406')
       .attr('transform', 'scale(' + (22 / 64) + ') translate(' + (-404 + x * (64 / 22) - 17) + ', ' + (-282 + y * (64 / 22) - 17) + ')')
   }
 
-  function circle (blip, x, y, order, group) {
+  function circle(blip, x, y, order, group) {
     return (group || svg).append('path')
       .attr('d', 'M420.084,282.092c-1.073,0-2.16,0.103-3.243,0.313c-6.912,1.345-13.188,8.587-11.423,16.874c1.732,8.141,8.632,13.711,17.806,13.711c0.025,0,0.052,0,0.074-0.003c0.551-0.025,1.395-0.011,2.225-0.109c4.404-0.534,8.148-2.218,10.069-6.487c1.747-3.886,2.114-7.993,0.913-12.118C434.379,286.944,427.494,282.092,420.084,282.092')
       .attr('transform', 'scale(' + (blip.width / 34) + ') translate(' + (-404 + x * (34 / blip.width) - 17) + ', ' + (-282 + y * (34 / blip.width) - 17) + ')')
       .attr('class', order)
   }
 
-  function circleLegend (x, y, group) {
+  function circleLegend(x, y, group) {
     return (group || svg).append('path')
       .attr('d', 'M420.084,282.092c-1.073,0-2.16,0.103-3.243,0.313c-6.912,1.345-13.188,8.587-11.423,16.874c1.732,8.141,8.632,13.711,17.806,13.711c0.025,0,0.052,0,0.074-0.003c0.551-0.025,1.395-0.011,2.225-0.109c4.404-0.534,8.148-2.218,10.069-6.487c1.747-3.886,2.114-7.993,0.913-12.118C434.379,286.944,427.494,282.092,420.084,282.092')
       .attr('transform', 'scale(' + (22 / 64) + ') translate(' + (-404 + x * (64 / 22) - 17) + ', ' + (-282 + y * (64 / 22) - 17) + ')')
   }
 
-  function addRing (ring, order) {
+  function addRing(ring, order) {
     var table = d3.select('.quadrant-table.' + order)
     table.append('h3').text(ring)
     return table.append('ul')
   }
 
-  function calculateBlipCoordinates (blip, chance, minRadius, maxRadius, startAngle) {
+  function calculateBlipCoordinates(blip, chance, minRadius, maxRadius, startAngle) {
     var adjustX = Math.sin(toRadian(startAngle)) - Math.cos(toRadian(startAngle))
     var adjustY = -Math.cos(toRadian(startAngle)) - Math.sin(toRadian(startAngle))
 
@@ -151,13 +151,13 @@ const Radar = function (size, radar) {
     return [x, y]
   }
 
-  function thereIsCollision (blip, coordinates, allCoordinates) {
+  function thereIsCollision(blip, coordinates, allCoordinates) {
     return allCoordinates.some(function (currentCoordinates) {
       return (Math.abs(currentCoordinates[0] - coordinates[0]) < blip.width) && (Math.abs(currentCoordinates[1] - coordinates[1]) < blip.width)
     })
   }
 
-  function plotBlips (quadrantGroup, rings, quadrantWrapper) {
+  function plotBlips(quadrantGroup, rings, quadrantWrapper) {
     var blips, quadrant, startAngle, order
 
     quadrant = quadrantWrapper.quadrant
@@ -208,7 +208,7 @@ const Radar = function (size, radar) {
     })
   }
 
-  function findBlipCoordinates (blip, minRadius, maxRadius, startAngle, allBlipCoordinatesInRing) {
+  function findBlipCoordinates(blip, minRadius, maxRadius, startAngle, allBlipCoordinatesInRing) {
     const maxIterations = 200
     var coordinates = calculateBlipCoordinates(blip, chance, minRadius, maxRadius, startAngle)
     var iterationCounter = 0
@@ -232,11 +232,14 @@ const Radar = function (size, radar) {
     }
   }
 
-  function drawBlipInCoordinates (blip, coordinates, order, quadrantGroup, ringList) {
+  function drawBlipInCoordinates(blip, coordinates, order, quadrantGroup, ringList) {
     var x = coordinates[0]
     var y = coordinates[1]
 
-    var group = quadrantGroup.append('g').attr('class', 'blip-link').attr('id', 'blip-link-' + blip.number())
+    var teamList = blip.teams().map(function (team) {
+      return team.toLowerCase().replace(/(?![a-zA-Z0-9])./g, '');
+    }).join(' ')
+    var group = quadrantGroup.append('g').attr('class', 'blip-link').attr('teams', teamList).attr('id', 'blip-link-' + blip.number())
 
     if (blip.isNew()) {
       triangle(blip, x, y, order, group)
@@ -257,6 +260,7 @@ const Radar = function (size, radar) {
     var blipText = blip.number() + '. ' + blip.name() + (blip.topic() ? ('. - ' + blip.topic()) : '')
     blipListItem.append('div')
       .attr('class', 'blip-list-item')
+      .attr('teams', teamList)
       .attr('id', 'blip-list-item-' + blip.number())
       .text(blipText)
 
@@ -270,12 +274,13 @@ const Radar = function (size, radar) {
     var mouseOver = function () {
       d3.selectAll('g.blip-link').attr('opacity', 0.3)
       group.attr('opacity', 1.0)
-      blipListItem.selectAll('.blip-list-item').classed('highlight', true)
+      blipListItem.selectAll('.blip-list-item').attr('opacity', 1.0).classed('highlight', true)
       tip.show(blip.name(), group.node())
     }
 
     var mouseOut = function () {
-      d3.selectAll('g.blip-link').attr('opacity', 1.0)
+      // d3.selectAll('g.blip-link').attr('opacity', 1.0)
+      reloadBlipOpacity()
       blipListItem.selectAll('.blip-list-item').classed('highlight', false)
       tip.hide().style('left', 0).style('top', 0)
     }
@@ -296,11 +301,25 @@ const Radar = function (size, radar) {
     blipListItem.on('click', clickBlip)
   }
 
-  function removeHomeLink () {
+  function reloadBlipOpacity() {
+    if (!selectedFilters.length) {
+      d3.selectAll('g.blip-link, .blip-list-item').attr('opacity', 1.0)
+    } else {
+      d3
+        .selectAll('g.blip-link, .blip-list-item')
+        .attr('opacity', 0.3)
+        .filter(selectedFilters.map(function (filter) {
+          return '[teams*="' + filter + '"]'
+        }).join(','))
+        .attr('opacity', 1.0)
+    }
+  }
+
+  function removeHomeLink() {
     d3.select('.home-link').remove()
   }
 
-  function createHomeLink (pageElement) {
+  function createHomeLink(pageElement) {
     if (pageElement.select('.home-link').empty()) {
       pageElement.insert('div', 'div#alternative-buttons')
         .html('&#171; Back to Radar home')
@@ -314,11 +333,11 @@ const Radar = function (size, radar) {
     }
   }
 
-  function removeRadarLegend () {
+  function removeRadarLegend() {
     d3.select('.legend').remove()
   }
 
-  function drawLegend (order) {
+  function drawLegend(order) {
     removeRadarLegend()
 
     var triangleKey = 'New or moved'
@@ -374,11 +393,12 @@ const Radar = function (size, radar) {
       .text(circleKey)
   }
 
-  function redrawFullRadar () {
+  function redrawFullRadar() {
     removeHomeLink()
     removeRadarLegend()
     tip.hide()
-    d3.selectAll('g.blip-link').attr('opacity', 1.0)
+    // d3.selectAll('g.blip-link').attr('opacity', 1.0)
+    reloadBlipOpacity()
 
     svg.style('left', 0).style('right', 0)
 
@@ -403,13 +423,13 @@ const Radar = function (size, radar) {
       .style('pointer-events', 'auto')
   }
 
-  function searchBlip (_e, ui) {
+  function searchBlip(_e, ui) {
     const { blip, quadrant } = ui.item
     const isQuadrantSelected = d3.select('div.button.' + quadrant.order).classed('selected')
     selectQuadrant.bind({}, quadrant.order, quadrant.startAngle)()
     const selectedDesc = d3.select('#blip-description-' + blip.number())
     d3.select('.blip-item-description.expanded').node() !== selectedDesc.node() &&
-        d3.select('.blip-item-description.expanded').classed('expanded', false)
+      d3.select('.blip-item-description.expanded').classed('expanded', false)
     selectedDesc.classed('expanded', true)
 
     d3.selectAll('g.blip-link').attr('opacity', 0.3)
@@ -429,7 +449,7 @@ const Radar = function (size, radar) {
     }
   }
 
-  function plotRadarHeader () {
+  function plotRadarHeader() {
     header = d3.select('body').insert('header', '#radar')
     header.append('div')
       .attr('class', 'radar-title')
@@ -454,11 +474,14 @@ const Radar = function (size, radar) {
     alternativeDiv = header.append('div')
       .attr('id', 'alternative-buttons')
 
+    teamsFilters = header.append('div')
+      .classed('teams-group', true)
+
     return header
   }
 
-  function plotQuadrantButtons (quadrants, header) {
-    function addButton (quadrant) {
+  function plotQuadrantButtons(quadrants, header) {
+    function addButton(quadrant) {
       radarElement
         .append('div')
         .attr('class', 'quadrant-table ' + quadrant.order)
@@ -500,7 +523,7 @@ const Radar = function (size, radar) {
     })
   }
 
-  function plotRadarFooter () {
+  function plotRadarFooter() {
     d3.select('body')
       .insert('div', '#radar-plot + *')
       .attr('id', 'footer')
@@ -508,21 +531,21 @@ const Radar = function (size, radar) {
       .attr('class', 'footer-content')
       .append('p')
       .html('Powered by <a href="https://www.thoughtworks.com"> ThoughtWorks</a>. ' +
-      'By using this service you agree to <a href="https://www.thoughtworks.com/radar/tos">ThoughtWorks\' terms of use</a>. ' +
-      'You also agree to our <a href="https://www.thoughtworks.com/privacy-policy">privacy policy</a>, which describes how we will gather, use and protect any personal data contained in your public Google Sheet. ' +
-      'This software is <a href="https://github.com/thoughtworks/build-your-own-radar">open source</a> and available for download and self-hosting.')
+        'By using this service you agree to <a href="https://www.thoughtworks.com/radar/tos">ThoughtWorks\' terms of use</a>. ' +
+        'You also agree to our <a href="https://www.thoughtworks.com/privacy-policy">privacy policy</a>, which describes how we will gather, use and protect any personal data contained in your public Google Sheet. ' +
+        'This software is <a href="https://github.com/thoughtworks/build-your-own-radar">open source</a> and available for download and self-hosting.')
   }
 
-  function mouseoverQuadrant (order) {
+  function mouseoverQuadrant(order) {
     d3.select('.quadrant-group-' + order).style('opacity', 1)
     d3.selectAll('.quadrant-group:not(.quadrant-group-' + order + ')').style('opacity', 0.3)
   }
 
-  function mouseoutQuadrant (order) {
+  function mouseoutQuadrant(order) {
     d3.selectAll('.quadrant-group:not(.quadrant-group-' + order + ')').style('opacity', 1)
   }
 
-  function selectQuadrant (order, startAngle) {
+  function selectQuadrant(order, startAngle) {
     d3.selectAll('.home-link').classed('selected', false)
     createHomeLink(d3.select('header'))
 
@@ -582,14 +605,44 @@ const Radar = function (size, radar) {
     return self
   }
 
-  function constructSheetUrl (sheetName) {
+  function constructSheetUrl(sheetName) {
     var noParamUrl = window.location.href.substring(0, window.location.href.indexOf(window.location.search))
     var queryParams = QueryParams(window.location.search.substring(1))
     var sheetUrl = noParamUrl + '?sheetId=' + queryParams.sheetId + '&sheetName=' + encodeURIComponent(sheetName)
     return sheetUrl
   }
 
-  function plotAlternativeRadars (alternatives, currentSheet) {
+  function plotTeamsFilters(teams) {
+    teamsFilters.append('p').text('Select specifics team to display')
+    var list = teamsFilters.append('ul')
+    teams.forEach(function (team) {
+      var token = team.toLowerCase().replace(/(?![a-zA-Z0-9])./g, '');
+      var item = list.append('li')
+      var label = item.append('label').attr('for', 'team-filter-' + token)
+      label
+        .append('input')
+        .attr('type', 'checkbox')
+        .attr('value', token)
+        .attr('id', 'team-filter-' + token)
+        .attr('checked', 'checked')
+        .on('change', function () {
+          selectedFilters = [];
+          var listInput = list.selectAll('input[type=checkbox]')
+          listInput.filter(':checked').each(function (_, index, nodeList) {
+            var input = nodeList[index]
+            selectedFilters.push(input.value)
+          });
+          if (!selectedFilters.length || listInput.size() === selectedFilters.length) {
+            selectedFilters = [];
+          }
+          reloadBlipOpacity()
+        })
+      label.append('span')
+        .text(team)
+    });
+  }
+
+  function plotAlternativeRadars(alternatives, currentSheet) {
     var alternativeSheetButton = alternativeDiv
       .append('div')
       .classed('multiple-sheet-button-group', true)
@@ -615,10 +668,12 @@ const Radar = function (size, radar) {
 
     rings = radar.rings()
     quadrants = radar.quadrants()
+    teams = radar.getTeams()
     alternatives = radar.getAlternatives()
     currentSheet = radar.getCurrentSheet()
     var header = plotRadarHeader()
 
+    plotTeamsFilters(teams)
     plotAlternativeRadars(alternatives, currentSheet)
 
     plotQuadrantButtons(quadrants, header)

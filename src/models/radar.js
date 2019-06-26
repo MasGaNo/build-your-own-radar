@@ -20,6 +20,7 @@ const Radar = function () {
   ]
   alternatives = []
   currentSheetName = ''
+  teams = []
   self = {}
 
   function setNumbers (blips) {
@@ -31,7 +32,7 @@ const Radar = function () {
   self.addAlternative = function (sheetName) {
     alternatives.push(sheetName)
   }
-
+  
   self.getAlternatives = function () {
     return alternatives
   }
@@ -42,6 +43,14 @@ const Radar = function () {
 
   self.getCurrentSheet = function () {
     return currentSheetName
+  }
+  
+  self.addTeams = function (teamsList) {
+    teams = teamsList
+  }
+  
+  self.getTeams = function () {
+    return teams
   }
 
   self.addQuadrant = function (quadrant) {
